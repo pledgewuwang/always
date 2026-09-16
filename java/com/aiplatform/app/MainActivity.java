@@ -39,7 +39,22 @@ import android.widget.Toast;
  */
 public class MainActivity extends Activity {
 
-    private static final String START_URL = "http://8.148.159.39:3389";
+    /** 服务器地址(混淆存储:Base64(XOR(明文, 循环key))),解密见 decryptUrl() */
+    private static final String START_URL_ENC = "CRgDEUNcHQgcB1VUWVBMShwDCwxSX09Y";
+    private static final String START_URL = decryptUrl(START_URL_ENC);
+
+    /** 轻度混淆:反编译不能一眼看到服务器地址 */
+    private static String decryptUrl(String enc) {
+        try {
+            byte[] key = "always2026".getBytes("UTF-8");
+            byte[] data = android.util.Base64.decode(enc, android.util.Base64.DEFAULT);
+            StringBuilder sb = new StringBuilder(data.length);
+            for (int i = 0; i < data.length; i++) sb.append((char) (data[i] ^ key[i % key.length]));
+            return sb.toString();
+        } catch (Exception e) {
+            return null;
+        }
+    }
     private static final String UA =
             "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) " +
             "Chrome/124.0.0.0 Mobile Safari/537.36";
@@ -96,6 +111,13 @@ public class MainActivity extends Activity {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
                 return handleUrl(url);
+            }
+
+            /** SSL 错误默认拒绝(安全默认;未来上 HTTPS 后如需自签,改为校验证书指纹) */
+            @Override
+            public void onReceivedSslError(WebView view, android.webkit.SslErrorHandler handler, android.net.http.SslError error) {
+                handler.cancel();
+                Toast.makeText(MainActivity.this, "证书校验失败，已阻断连接", Toast.LENGTH_LONG).show();
             }
 
             @Override
@@ -205,7 +227,7 @@ public class MainActivity extends Activity {
 
         if (savedInstanceState != null) {
             webView.restoreState(savedInstanceState);
-        } else {
+        } else if (START_URL != null) {
             webView.loadUrl(START_URL);
         }
     }

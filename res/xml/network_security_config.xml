@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 网络安全配置：当前后端为 HTTP，放行明文（与 usesCleartextTraffic 等效但更细粒度）。
+     未来上 HTTPS 时：删除 cleartextTrafficPermitted，并在 <pin-set> 填入证书公钥哈希实现证书锁定。 -->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+    <!-- 示例（上 HTTPS 后启用）：
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="true">your.domain.com</domain>
+        <pin-set expiration="2027-01-01">
+            <pin digest="SHA-256">base64encodedpin==</pin>
+            <pin digest="SHA-256">backuppin==</pin>
+        </pin-set>
+    </domain-config>
+    -->
+</network-security-config>
