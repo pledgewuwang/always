@@ -40,13 +40,13 @@ import android.widget.Toast;
 public class MainActivity extends Activity {
 
     /** 服务器地址(混淆存储:Base64(XOR(明文, 循环key))),解密见 decryptUrl() */
-    private static final String START_URL_ENC = "CRgDEUNcHQgcB1VUWVBMShwDCwxSX09Y";
+    private static final String START_URL_ENC = "Ax0bA1ECTQlIHFpXWhxUFF1WWkhWR1NQ";
     private static final String START_URL = decryptUrl(START_URL_ENC);
 
     /** 轻度混淆:反编译不能一眼看到服务器地址 */
     private static String decryptUrl(String enc) {
         try {
-            byte[] key = "always2026".getBytes("UTF-8");
+            byte[] key = "kiosk-b1f-not-a-secret".getBytes("UTF-8");
             byte[] data = android.util.Base64.decode(enc, android.util.Base64.DEFAULT);
             StringBuilder sb = new StringBuilder(data.length);
             for (int i = 0; i < data.length; i++) sb.append((char) (data[i] ^ key[i % key.length]));
@@ -94,16 +94,18 @@ public class MainActivity extends Activity {
         s.setUseWideViewPort(true);
         s.setBuiltInZoomControls(false);
         s.setSupportZoom(false);
-        s.setAllowFileAccess(true);
-        s.setAllowContentAccess(true);
+        s.setAllowFileAccess(false);
+        s.setAllowContentAccess(false);
         s.setUserAgentString(UA);
         if (android.os.Build.VERSION.SDK_INT >= 21) {
+            // 后端当前为 HTTP：页面与资源同为明文，严格模式无意义；上 HTTPS 后改为 NEVER_ALLOW
             s.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
         }
 
         CookieManager cm = CookieManager.getInstance();
         cm.setAcceptCookie(true);
         if (android.os.Build.VERSION.SDK_INT >= 21) {
+            // 第三方 cookie：GitHub OAuth 回跳期间可能跨站，保守保留；若日后收紧需回归 OAuth 流程
             cm.setAcceptThirdPartyCookies(webView, true);
         }
 
