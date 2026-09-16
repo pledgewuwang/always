@@ -1,0 +1,18 @@
+# 构建产物
+build/
+*.apk
+*.idsig
+
+# 签名密钥（绝不入库）
+*.keystore
+*.jks
+local.properties
+
+# Python
+__pycache__/
+*.pyc
+
+# IDE / 系统
+.idea/
+.vscode/
+Thumbs.db
